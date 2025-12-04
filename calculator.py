@@ -6,9 +6,10 @@ from tkinter import font
 #This stament allows us to use any mathmatical functions in our code to calculate results.
 import math
 #The Thread statement is a part of the threading module.This provides a convenient way to create and manage threads in our program.
-from threading import Thread
+# from threading import Thread
 #This is used to present decimal numbers as this is important in certain calculations.
 from decimal import Decimal
+import re
 
 #This code uses Tkinter to define a Calculator class for a basic calculator app. The background colour and title of the main window are set in the constructor (__init__ method).
 #The Tkinter window reference is kept in the self.root variable, and light blue is set as the background colour. 
@@ -114,22 +115,16 @@ class Calculator:
         self.logo_label.configure(bg=color)
 
     # Retrieves current content in the data field and stores it in the varriable 'current'
-    # Checks wether the current content of the data field contains a valid numeric value
-    # Either current is a positive integer or a negative integer
     def insert_number(self, number):
         current = self.entry.get()
-        if current and (current[0] == '-' and current[1:].isdigit() or current.isdigit()):
+        if current == "Error": # if there is an error, clear before typing
             self.entry.delete(0, tk.END)
-            self.entry.insert(0, str(current) + str(number))
-        else:
-            self.entry.insert(tk.END, str(number))
 
-    # The insert_decimal method is designed to triggered the tkinker decimal point function. 
-    #This code adds a decimal point to the end of the entry field's content if certain conditions are met.  
+        self.entry.insert(tk.END, str(number)) # just insert the new digit at the end
+
+    # The insert_decimal method inserts a decimal point at the end of the current input.
     def insert_decimal(self):
-        current = self.entry.get()
-        if current and '.' not in current:
-            self.entry.insert(tk.END, '.')
+        self.entry.insert(tk.END, '.')
 
     #the binary_to_decimal method is designed to convert a binary number into its decimal equivalent. 
     #It handles both successful conversions and cases where the input is not a valid binary number.
@@ -148,7 +143,7 @@ class Calculator:
         decimal_input = self.entry.get()
         try:
             decimal_input = int(decimal_input)
-            binary_output = bin(decimal_input)
+            binary_output = bin(decimal_input)[2:]
             self.entry.delete(0, tk.END)
             self.entry.insert(0, str(binary_output))
         except ValueError:
@@ -177,65 +172,50 @@ class Calculator:
 
 
 
-    #This adds the percentage function 
+    # This adds the percentage operator to the current expression
     def percentage(self):
-        try:
-            value = float(self.entry.get())
-            result = value / 100 #Calculate the percentage of the obtained value by dividing it by 100.
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, str(result))
-        except ValueError:
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, "Error")#Clear the entry field and insert the string "Error" to indicate that the operation couldn't be performed due to invalid input.
+        text = self.entry.get()
+        if text == "" or text == "Error":
+            return
+        self.entry.insert(tk.END, '%')
 
-    #This adds the multiplication function 
+
+    # This adds the multiplication operator to the current expression
     def multiplication(self):
-        try:
-            value = float(self.entry.get())
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, str(value) + '*')
-        except ValueError:
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, "Error")#Clear the entry field and insert the string "Error" to indicate that the operation couldn't be performed due to invalid input.
+        text = self.entry.get()
+        if text == "" or text == "Error":
+            return
+        self.entry.insert(tk.END, '*')
 
-    #This adds the additin function 
+    # This adds the addition operator to the current expression
     def addition(self):
-        try:
-            value = float(self.entry.get()) # This Retrieve the value from the Tkinter entry widget and convert it to a floating-point number.
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, str(value) + '+')
-        except ValueError:
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, "Error")#Clear the entry field and insert the string "Error" to indicate that the operation couldn't be performed due to invalid input.
+        text = self.entry.get()
+        if text == "" or text == "Error":
+            return
+        self.entry.insert(tk.END, '+')
 
-    #This adds the subtraction function 
+    # This adds the subtraction operator to the current expression
     def subtraction(self):
-        try:
-            value = float(self.entry.get())#Retrieve the value from the Tkinter entry widget and convert it to a floating-point number.
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, str(value) + '-')
-        except ValueError:
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, "Error")#Clear the entry field and insert the string "Error" to indicate that the operation couldn't be performed due to invalid input.
+        text = self.entry.get()
+        self.entry.insert(tk.END, '-') # allow leading negative number
 
-    #This adds the division function 
+    # This adds the division operator to the current expression
     def division(self):
-        try:
-            value = float(self.entry.get())#This Retrieve the value from the Tkinter entry widget and convert it to a floating-point number.
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, str(value) + '/')
-        except ValueError:
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, "Error")#Clear the entry field and insert the string "Error" to indicate that the operation couldn't be performed due to invalid input.
+        text = self.entry.get()
+        if text == "" or text == "Error":
+            return
+        self.entry.insert(tk.END, '/')
 
     #retrieves the current content of the entry field associated with the class instance and stores it in the variable expression.
     def evaluate_expression(self):
         expression = self.entry.get()
         try:
+            expression = re.sub(r'(\d+(\.\d+)?)%', r'(\1/100)', expression) # percentage conversion
+
             result = eval(expression)
             self.entry.delete(0, tk.END)
             self.entry.insert(0, str(result))
-        except (ValueError, SyntaxError):
+        except (ValueError, SyntaxError, ZeroDivisionError, NameError, TypeError):
             self.entry.delete(0, tk.END)
             self.entry.insert(0, "Error")#Clear the entry field and insert the string "Error" to indicate that the operation couldn't be performed due to invalid input.
 
@@ -259,6 +239,8 @@ class Calculator:
             self.entry.insert(0, str(e))
             #Clear the entry field and insert the error message as a string to indicate that the operation couldn't be performed due to invalid input.
 
+
+    """
     def calculate_factorial_threaded(self, value):
         result = math.factorial(value)#uses the math function to calculate the factorial of the given value
         self.root.after(0, lambda: self.update_gui_with_factorial(result))#prevents potential delays in responsiveness.
@@ -266,6 +248,7 @@ class Calculator:
     def update_gui_with_factorial(self, result):
         self.entry.delete(0, tk.END)
         self.entry.insert(0, str(result))
+    """ # unused and unnecessary: no real threading is implemented
 
     #This runs the calculator 
 def run_calculator():#Create the main Tkinter window
