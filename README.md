@@ -34,6 +34,7 @@ error handling, and additional tools such as binary / decimal conversion.
     - ln(x) (`ln()`)
   - Absolute value (`abs()`)
   - Rounding (`round()`)
+  - Constants π, e
 
 ### Conversion tools
 - Binary → Decimal
