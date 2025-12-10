@@ -176,7 +176,7 @@ class Calculator:
     def insert_open_paren(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, '(')
 
     # The insert_decimal method inserts a decimal point at the end of the current input.
@@ -211,35 +211,35 @@ class Calculator:
     def e(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'e')
 
     # This adds the pi number
     def pi(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'π')
 
     # This adds the log operator
     def log_10(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'log(')
 
     # This adds the ln operator
     def ln(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'ln(')
 
     # This adds the square root operator
     def square_root(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'sqrt(')
      
     #This adds the power operator
@@ -275,11 +275,14 @@ class Calculator:
     def addition(self):
         text = self.entry.get()
         if text == "" or text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, '+')
 
     # This adds the subtraction operator to the current expression
     def subtraction(self):
+        text = self.entry.get()
+        if text == "Error":
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, '-') # allow leading negative number
 
     # This adds the division operator to the current expression
@@ -293,35 +296,35 @@ class Calculator:
     def round(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'round(')
 
     # This adds the abs operator to the current expression
     def abs(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'abs(')
 
     # This adds the sin operator to the current expression
     def sin(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'sin(')
 
     # This adds the cos operator to the current expression
     def cos(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'cos(')
 
     # This adds the tan operator to the current expression
     def tan(self):
         text = self.entry.get()
         if text == "Error":
-            return
+            self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, 'tan(')
 
     #retrieves the current content of the entry field associated with the class instance and stores it in the variable expression.
