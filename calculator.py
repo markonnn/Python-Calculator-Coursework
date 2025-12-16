@@ -331,31 +331,8 @@ class Calculator:
     def evaluate_expression(self):
         expression = self.entry.get()
         try:
-            expression = re.sub(r'(\d+(\.\d+)?)%', r'(\1/100)', expression) # percentage conversion
-            expression = re.sub(r'(\d+)!', r'self.calculate_factorial(\1)', expression) # factorial conversion
-            expression = re.sub(r'\bsqrt\b', r'math.sqrt', expression) # square root conversion
-            expression = re.sub(r'\^', r'**', expression) # power conversion
-            expression = re.sub(r'\blog\b', r'math.log10', expression) # log conversion
-            expression = re.sub(r'\bln\b', r'math.log', expression) # ln conversion
-            expression = re.sub(r'π', r'math.pi', expression) # pi conversion
-            expression = re.sub(r'\be\b', r'math.e', expression) # e conversion
-            expression = re.sub(r'\bsin\b', r'math.sin(math.radians(', expression) # sin conversion (rounded on 10th digit)
-            expression = re.sub(r'\bcos\b', r'math.cos(math.radians(', expression) # cos conversion
-            expression = re.sub(r'\btan\b', r'math.tan(math.radians(', expression) # tan conversion
-            expression = re.sub(r'\babs\b', r'abs', expression) # abs conversion
-            expression = re.sub(r'\bround\b', r'round', expression) # round conversion
-
-            # auto fix unmatched parentheses
-            if expression.count("(") > expression.count(")"):
-                expression += ")" * (expression.count("(") - expression.count(")"))
-            elif expression.count("(") < expression.count(")"):
-                expression = "(" * (expression.count(")") - expression.count("(")) + expression
-
-            result = eval(expression)
-            # fix floating point issues for trig functions
-            if "math.sin" in expression or "math.cos" in expression or "math.tan" in expression:
-                result = round(result, 10)
-
+            # call core logic
+            result = self.parse_and_calculate(expression)
             self.entry.delete(0, tk.END)
             self.entry.insert(0, str(result))
         except (ValueError, SyntaxError, ZeroDivisionError, NameError, TypeError):
@@ -380,9 +357,9 @@ class Calculator:
                 raise ValueError("Factorial is defined only for non-negative integers.")#Check if the converted value is a non-negative integer. If not, raise a ValueError with an appropriate error message.
 
             if value < 100000:
-                result = Decimal(1)
+                result = 1
                 for i in range(2, value + 1):
-                    result *= Decimal(i)
+                    result *= i
                 return result
             else:
                 # for very large n: show as e^(ln(n!)) using log-gamma
@@ -404,6 +381,35 @@ class Calculator:
         self.entry.delete(0, tk.END)
         self.entry.insert(0, str(result))
     """ # unused and unnecessary
+
+    # separates the calculation logic from the UI
+    def parse_and_calculate (self, expression):
+
+        # auto fix unmatched parentheses
+        if expression.count("(") > expression.count(")"):
+            expression += ")" * (expression.count("(") - expression.count(")"))
+        elif expression.count("(") < expression.count(")"):
+            expression = "(" * (expression.count(")") - expression.count("(")) + expression
+
+        expression = re.sub(r'(\d+(\.\d+)?)%', r'(\1/100)', expression) # percentage conversion
+        expression = re.sub(r'(\d+)!', r'self.calculate_factorial(\1)', expression) # factorial conversion
+        expression = re.sub(r'\bsqrt\b', r'math.sqrt', expression) # square root conversion
+        expression = re.sub(r'\^', r'**', expression) # power conversion
+        expression = re.sub(r'\blog\b', r'math.log10', expression) # log conversion
+        expression = re.sub(r'\bln\b', r'math.log', expression) # ln conversion
+        expression = re.sub(r'π', r'math.pi', expression) # pi conversion
+        expression = re.sub(r'\be\b', r'math.e', expression) # e conversion
+        expression = re.sub(r'\bsin\(([^)]+)\)', r'math.sin(math.radians(\1))', expression) # sin conversion
+        expression = re.sub(r'\bcos\(([^)]+)\)', r'math.cos(math.radians(\1))', expression) # cos conversion (radians)
+        expression = re.sub(r'\btan\(([^)]+)\)', r'math.tan(math.radians(\1))', expression) # tan conversion
+        expression = re.sub(r'\babs\b', r'abs', expression) # abs conversion
+        expression = re.sub(r'\bround\b', r'round', expression) # round conversion
+
+        result = eval(expression)
+        # fix floating point issues for trig functions
+        if "math.sin" in expression or "math.cos" in expression or "math.tan" in expression:
+            result = round(result, 10)
+        return result
 
     #This runs the calculator 
 def run_calculator():#Create the main Tkinter window
